@@ -49,7 +49,7 @@ export async function analyze(root: string): Promise<GraphData> {
   // Build dependency graph via madge
   const madgeResult = await madge(absRoot, {
     fileExtensions: ["ts", "tsx", "js", "jsx"],
-    excludeRegExp: [/node_modules/, /\.test\./, /\.spec\./, /dist\//],
+    excludeRegExp: [/node_modules/, /\.test\./, /\.spec\./, /dist\//, /\.next\//, /\.turbo\//, /out\//, /coverage\//],
     detectiveOptions: {
       ts: { skipTypeImports: true },
     },

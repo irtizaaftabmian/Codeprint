@@ -4,9 +4,64 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>nodemap</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-      html, body, #root { width: 100%; height: 100%; background: #0a0a0a; color: #e4e4e7; font-family: system-ui, sans-serif; }
+      html, body, #root {
+        width: 100%;
+        height: 100%;
+        background: #111111;
+        color: #f0f0f0;
+        font-family: 'Geist', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      ::selection {
+        background: rgba(59, 130, 246, 0.3);
+        color: #f0f0f0;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #2a2a2a;
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #3a3a3a;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      .react-flow__controls-button {
+        background: transparent !important;
+        border: none !important;
+        border-bottom: 1px solid #2a2a2a !important;
+        color: #888 !important;
+        fill: #888 !important;
+      }
+      .react-flow__controls-button:hover {
+        background: rgba(255,255,255,0.04) !important;
+        color: #f0f0f0 !important;
+        fill: #f0f0f0 !important;
+      }
+      .react-flow__controls-button:last-child {
+        border-bottom: none !important;
+      }
+      .react-flow__controls-button svg {
+        fill: inherit !important;
+      }
+      .react-flow__edge-path {
+        stroke: #2a2a2a !important;
+      }
+      .react-flow__minimap {
+        border-radius: 8px !important;
+      }
     </style>
   </head>
   <body>
