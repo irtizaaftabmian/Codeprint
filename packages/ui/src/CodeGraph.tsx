@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import dagre from "@dagrejs/dagre";
+import * as dagre from "@dagrejs/dagre";
 import {
   ReactFlow,
   Background,
@@ -30,83 +30,6 @@ const STATUS_COLOR: Record<string, string> = {
   live: "#3b82f6",
   dead: "#ef4444",
 };
-
-// --- Smart description from path segments ---
-
-function toWords(segment: string): string {
-  // Strip dynamic param brackets: [sessionId] → sessionId
-  const clean = segment.replace(/^\[(.+)\]$/, "$1").replace(/^\.\.\.[^)]+/, "");
-  // camelCase or kebab to words
-  return clean
-    .replace(/([a-z])([A-Z])/g, "$1 $2")
-    .replace(/[-_]/g, " ")
-    .toLowerCase();
-}
-
-function capitalize(s: string): string {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-function inferDescription(path: string, loc: number): string {
-  const parts = path.split("/");
-  const filename = parts[parts.length - 1] ?? "";
-  const basename = filename.replace(/\.(ts|tsx|js|jsx)$/, "").toLowerCase();
-
-  // Strip common wrapper dirs that add no meaning
-  const SKIP = new Set(["app", "src", "pages", "routes", ".", ""]);
-  // Filenames that are structural, not descriptive
-  const GENERIC_NAMES = new Set(["page", "route", "layout", "index", "loading", "error", "not-found", "template", "default"]);
-
-  const meaningfulSegments = parts
-    .slice(0, -1) // exclude filename
-    .filter((s) => !SKIP.has(s.toLowerCase()))
-    .map(toWords)
-    .filter(Boolean);
-
-  const isGenericFilename = GENERIC_NAMES.has(basename);
-  const fileWords = isGenericFilename ? null : toWords(basename);
-
-  // Determine the role suffix from the filename
-  let role = "";
-  if (basename === "page" || basename === "index") role = "page";
-  else if (basename === "route") role = "endpoint";
-  else if (basename === "layout") role = "layout";
-  else if (basename === "loading") role = "loading state";
-  else if (basename === "error") role = "error boundary";
-  else if (basename === "middleware" || basename === "proxy") role = "middleware";
-  else if (basename.startsWith("use")) role = "hook";
-  else if (path.includes("components/") || path.includes("component/")) role = "component";
-  else if (path.includes("store") || path.includes("stores/")) role = "store";
-  else if (path.includes("lib/") || path.includes("utils/") || path.includes("helpers/")) role = "utility";
-  else if (basename === "types" || basename === "type") role = "types";
-  else if (basename.includes("config")) role = "config";
-
-  // Build description from segments + role
-  let desc = "";
-  if (fileWords) {
-    // Non-generic filename: use it as the primary noun
-    desc = capitalize(fileWords);
-    if (meaningfulSegments.length > 0) {
-      // Add the most meaningful parent segment as context
-      const context = meaningfulSegments[meaningfulSegments.length - 1];
-      if (context && context !== fileWords) {
-        desc = `${capitalize(fileWords)} (${context})`;
-      }
-    }
-  } else if (meaningfulSegments.length > 0) {
-    // Generic filename: describe via path segments
-    const joined = meaningfulSegments
-      .slice(-3) // take last 3 segments max
-      .map((s, i, arr) => (i === arr.length - 1 ? capitalize(s) : s))
-      .join(" › ");
-    desc = joined;
-    if (role) desc = `${desc} ${role}`;
-  } else {
-    desc = role ? capitalize(role) : "Module";
-  }
-
-  return `${desc} · ${loc.toLocaleString()} lines`;
-}
 
 // --- Dagre layout ---
 
@@ -266,7 +189,7 @@ function CodeNode({ data }: NodeProps<Node<CodeNodeData>>) {
               letterSpacing: "-0.01em",
             }}
           >
-            {inferDescription(node.path, node.loc)}
+            {node.description}
           </div>
 
           {/* Full path */}

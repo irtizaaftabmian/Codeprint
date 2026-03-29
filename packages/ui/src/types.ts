@@ -10,6 +10,7 @@ export interface GraphNode {
   loc: number;
   exports: string[];
   deadExports: string[];
+  description: string;
 }
 
 export interface GraphEdge {

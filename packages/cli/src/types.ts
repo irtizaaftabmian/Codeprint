@@ -10,6 +10,7 @@ export interface GraphNode {
   loc: number; // lines of code
   exports: string[];
   deadExports: string[];
+  description: string; // plain-English summary for hover
 }
 
 export interface GraphEdge {
