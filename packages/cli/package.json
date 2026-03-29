@@ -1,0 +1,27 @@
+{
+  "name": "@nodemap/cli",
+  "version": "0.0.1",
+  "type": "module",
+  "bin": {
+    "nodemap": "./dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "hono": "^4.7.4",
+    "knip": "^5.46.0",
+    "madge": "^8.0.0",
+    "open": "^10.1.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/madge": "^5.0.3",
+    "@types/node": "^22.13.9",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  }
+}
