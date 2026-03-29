@@ -12,6 +12,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<GraphNode | null>(null);
   const [activeCategory, setActiveCategory] = useState<NodeCategory | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetch("/api/graph")
@@ -63,6 +64,30 @@ export default function App() {
         </div>
 
         <div style={styles.headerRight}>
+          {/* Search */}
+          <div style={styles.searchWrap}>
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}>
+              <circle cx="5" cy="5" r="3.5" stroke="#444" strokeWidth="1.3"/>
+              <path d="M8 8l2.5 2.5" stroke="#444" strokeWidth="1.3" strokeLinecap="round"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search nodes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={styles.searchInput}
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")} style={styles.searchClear}>
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <path d="M2 2l6 6M8 2L2 8" stroke="#555" strokeWidth="1.3" strokeLinecap="round"/>
+                </svg>
+              </button>
+            )}
+          </div>
+
+          <div style={styles.statDivider} />
+
           <Chip color="#4ade80" count={graph.stats.entries} label="entries" />
           <Chip color="#3b82f6" count={graph.stats.live} label="live" />
           <Chip color="#ef4444" count={graph.stats.dead} label="dead" />
@@ -101,7 +126,7 @@ export default function App() {
       </div>
 
       <div style={styles.canvas}>
-        <CodeGraph graph={graph} onSelect={setSelected} activeCategory={activeCategory} />
+        <CodeGraph graph={graph} onSelect={setSelected} activeCategory={activeCategory} searchQuery={searchQuery} />
         <Legend />
       </div>
 
@@ -238,6 +263,41 @@ const styles = {
     display: "flex",
     gap: 6,
     alignItems: "center",
+  },
+  searchWrap: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    background: "rgba(255,255,255,0.04)",
+    border: "1px solid #2a2a2a",
+    borderRadius: 7,
+    padding: "0 8px",
+    height: 28,
+  },
+  searchInput: {
+    background: "none",
+    border: "none",
+    outline: "none",
+    color: "#ccc",
+    fontSize: 12,
+    fontFamily: "'Geist', system-ui, sans-serif",
+    width: 140,
+    padding: 0,
+  },
+  searchClear: {
+    background: "none",
+    border: "none",
+    padding: 0,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    flexShrink: 0,
+  },
+  statDivider: {
+    width: 1,
+    height: 16,
+    background: "#2a2a2a",
+    flexShrink: 0,
   },
   filterBar: {
     display: "flex",
