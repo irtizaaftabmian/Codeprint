@@ -20,6 +20,14 @@ export default function App() {
       .catch((e: unknown) => setError(String(e)));
   }, []);
 
+  // Must be before any early returns — Rules of Hooks
+  const categories = useMemo(() => {
+    if (!graph) return [];
+    const counts = new Map<NodeCategory, number>();
+    for (const n of graph.nodes) counts.set(n.category, (counts.get(n.category) ?? 0) + 1);
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]) as [NodeCategory, number][];
+  }, [graph]);
+
   if (error) {
     return (
       <div style={styles.center}>
@@ -42,13 +50,6 @@ export default function App() {
       </div>
     );
   }
-
-  const categories = useMemo(() => {
-    if (!graph) return [];
-    const counts = new Map<NodeCategory, number>();
-    for (const n of graph.nodes) counts.set(n.category, (counts.get(n.category) ?? 0) + 1);
-    return [...counts.entries()].sort((a, b) => b[1] - a[1]) as [NodeCategory, number][];
-  }, [graph]);
 
   return (
     <div style={styles.root}>
