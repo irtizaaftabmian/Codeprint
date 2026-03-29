@@ -12,7 +12,7 @@ async function main() {
   const root = process.cwd();
 
   if (!jsonMode) {
-    console.log(pc.bold(pc.cyan("nodemap")) + pc.dim(" — analyzing codebase..."));
+    console.log(pc.bold(pc.cyan("codeprint")) + pc.dim(" — analyzing codebase..."));
   }
 
   let graph;
@@ -53,7 +53,7 @@ async function main() {
 
   // Keep process alive
   process.on("SIGINT", () => {
-    console.log(pc.dim("\nnodemap stopped."));
+    console.log(pc.dim("\ncodeprint stopped."));
     process.exit(0);
   });
 }

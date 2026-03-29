@@ -13,6 +13,7 @@ export default function App() {
   const [selected, setSelected] = useState<GraphNode | null>(null);
   const [activeCategory, setActiveCategory] = useState<NodeCategory | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
     fetch("/api/graph")
@@ -53,53 +54,105 @@ export default function App() {
   }
 
   return (
-    <div style={styles.root}>
-      <div style={styles.header}>
-        <div style={styles.headerLeft}>
-          <span style={styles.logo}>nodemap</span>
+    <div style={{ ...styles.root, background: isDark ? "#1C1917" : "#F8F7F4", color: isDark ? "#f0f0f0" : "#1a1a1a" }}>
+      <div style={{ ...styles.header, background: isDark ? "rgba(28,25,23,0.85)" : "rgba(252,251,249,0.92)", borderBottomColor: isDark ? "#2D2A27" : "#E0DCD6" }}>
+        <div style={{ ...styles.headerLeft, gap: 8 }}>
+          <img
+            src="/logo.png"
+            alt="codeprint"
+            style={{
+              height: 22,
+              width: "auto",
+              filter: isDark ? "none" : "invert(1)",
+              opacity: isDark ? 1 : 0.75,
+            }}
+          />
+          <span style={{ ...styles.logo, color: isDark ? "#f0f0f0" : "#1a1a1a" }}>codeprint</span>
         </div>
 
         <div style={styles.headerCenter}>
-          <span style={styles.rootPath}>{graph.root}</span>
+          <span style={{ ...styles.rootPath, color: isDark ? "#787068" : "#8A8480" }}>{graph.root}</span>
         </div>
 
         <div style={styles.headerRight}>
+          {/* Theme toggle */}
+          <button
+            onClick={() => setIsDark((d) => !d)}
+            title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            style={{
+              background: "none",
+              border: `1px solid ${isDark ? "#3D3935" : "#E0DCD6"}`,
+              borderRadius: 7,
+              width: 28,
+              height: 28,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: isDark ? "#787068" : "#8A8480",
+              flexShrink: 0,
+              transition: "border-color 0.15s, color 0.15s",
+            }}
+          >
+            {isDark ? (
+              /* Sun icon */
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.8"/>
+                <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+              </svg>
+            ) : (
+              /* Moon icon */
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </button>
+
           {/* Search */}
-          <div style={styles.searchWrap}>
+          <div style={{
+            ...styles.searchWrap,
+            background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
+            border: `1px solid ${isDark ? "#3D3935" : "#E0DCD6"}`,
+          }}>
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}>
-              <circle cx="5" cy="5" r="3.5" stroke="#444" strokeWidth="1.3"/>
-              <path d="M8 8l2.5 2.5" stroke="#444" strokeWidth="1.3" strokeLinecap="round"/>
+              <circle cx="5" cy="5" r="3.5" stroke={isDark ? "#787068" : "#8A8480"} strokeWidth="1.3"/>
+              <path d="M8 8l2.5 2.5" stroke={isDark ? "#787068" : "#8A8480"} strokeWidth="1.3" strokeLinecap="round"/>
             </svg>
             <input
               type="text"
               placeholder="Search nodes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={styles.searchInput}
+              style={{ ...styles.searchInput, color: isDark ? "#ccc" : "#1a1a1a" }}
             />
             {searchQuery && (
               <button onClick={() => setSearchQuery("")} style={styles.searchClear}>
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                  <path d="M2 2l6 6M8 2L2 8" stroke="#555" strokeWidth="1.3" strokeLinecap="round"/>
+                  <path d="M2 2l6 6M8 2L2 8" stroke={isDark ? "#787068" : "#8A8480"} strokeWidth="1.3" strokeLinecap="round"/>
                 </svg>
               </button>
             )}
           </div>
 
-          <div style={styles.statDivider} />
+          <div style={{ ...styles.statDivider, background: isDark ? "#3D3935" : "#D4CFC8" }} />
 
-          <Chip color="#4ade80" count={graph.stats.entries} label="entries" />
-          <Chip color="#3b82f6" count={graph.stats.live} label="live" />
-          <Chip color="#ef4444" count={graph.stats.dead} label="dead" />
-          <ChipMuted count={graph.stats.total} label="total" />
+          <Chip color="#22C55E" count={graph.stats.entries} label="entries" isDark={isDark} />
+          <Chip color="#3B82F6" count={graph.stats.live} label="live" isDark={isDark} />
+          <Chip color="#EF4444" count={graph.stats.dead} label="dead" isDark={isDark} />
+          <ChipMuted count={graph.stats.total} label="total" isDark={isDark} />
         </div>
       </div>
 
       {/* Category filter bar */}
-      <div style={styles.filterBar}>
+      <div style={{ ...styles.filterBar, background: isDark ? "#171412" : "#F0EDE8", borderBottomColor: isDark ? "#2D2A27" : "#E0DCD6" }}>
         <button
           onClick={() => setActiveCategory(null)}
-          style={{ ...styles.filterChip, ...(activeCategory === null ? styles.filterChipActive : {}) }}
+          style={{
+            ...styles.filterChip,
+            borderColor: activeCategory === null ? (isDark ? "#787068" : "#8A8480") : (isDark ? "#3D3935" : "#D4CFC8"),
+            color: activeCategory === null ? (isDark ? "#f0f0f0" : "#1a1a1a") : (isDark ? "#787068" : "#6B6560"),
+            background: activeCategory === null ? (isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)") : "transparent",
+          }}
         >
           All
         </button>
@@ -112,26 +165,26 @@ export default function App() {
               onClick={() => setActiveCategory(isActive ? null : cat)}
               style={{
                 ...styles.filterChip,
-                borderColor: isActive ? color : `${color}30`,
-                color: isActive ? color : "#666",
-                background: isActive ? `${color}12` : "transparent",
+                borderColor: isActive ? color : `${color}40`,
+                color: isActive ? color : (isDark ? "#787068" : "#6B6560"),
+                background: isActive ? `${color}18` : "transparent",
               }}
             >
               <span style={{ width: 5, height: 5, borderRadius: "50%", background: color, display: "inline-block", flexShrink: 0 }} />
               {CATEGORY_LABEL[cat]}
-              <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: isActive ? color : "#444" }}>{count}</span>
+              <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: isActive ? color : (isDark ? "#787068" : "#8A8480") }}>{count}</span>
             </button>
           );
         })}
       </div>
 
       <div style={styles.canvas}>
-        <CodeGraph graph={graph} onSelect={setSelected} activeCategory={activeCategory} searchQuery={searchQuery} />
-        <Legend />
+        <CodeGraph graph={graph} onSelect={setSelected} activeCategory={activeCategory} searchQuery={searchQuery} isDark={isDark} />
+        <Legend isDark={isDark} />
       </div>
 
       {selected && (
-        <NodeDetail node={selected} root={graph.root} onClose={() => setSelected(null)} />
+        <NodeDetail node={selected} root={graph.root} isDark={isDark} onClose={() => setSelected(null)} />
       )}
     </div>
   );
@@ -141,10 +194,12 @@ function Chip({
   color,
   count,
   label,
+  isDark,
 }: {
   color: string;
   count: number;
   label: string;
+  isDark: boolean;
 }) {
   return (
     <span
@@ -157,8 +212,8 @@ function Chip({
         fontFamily: FONT_SANS,
         padding: "3px 8px",
         borderRadius: 6,
-        background: `${color}10`,
-        border: `1px solid ${color}25`,
+        background: isDark ? `${color}10` : `${color}12`,
+        border: `1px solid ${isDark ? `${color}25` : `${color}30`}`,
         color,
         letterSpacing: "0.01em",
         lineHeight: "16px",
@@ -182,7 +237,7 @@ function Chip({
   );
 }
 
-function ChipMuted({ count, label }: { count: number; label: string }) {
+function ChipMuted({ count, label, isDark }: { count: number; label: string; isDark: boolean }) {
   return (
     <span
       style={{
@@ -194,14 +249,14 @@ function ChipMuted({ count, label }: { count: number; label: string }) {
         fontFamily: FONT_SANS,
         padding: "3px 8px",
         borderRadius: 6,
-        background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.06)",
-        color: "#555",
+        background: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)",
+        border: isDark ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.08)",
+        color: isDark ? "#555" : "#888",
         letterSpacing: "0.01em",
         lineHeight: "16px",
       }}
     >
-      <span style={{ fontFamily: FONT_MONO, fontWeight: 600, fontSize: 11, color: "#888" }}>
+      <span style={{ fontFamily: FONT_MONO, fontWeight: 600, fontSize: 11, color: isDark ? "#888" : "#555" }}>
         {count}
       </span>
       {label}
@@ -214,7 +269,7 @@ const styles = {
     display: "flex",
     flexDirection: "column" as const,
     height: "100vh",
-    background: "#111111",
+    background: "#1C1917",
     color: "#f0f0f0",
     fontFamily: FONT_SANS,
     position: "relative" as const,
@@ -224,8 +279,8 @@ const styles = {
     alignItems: "center",
     height: 44,
     padding: "0 16px",
-    borderBottom: "1px solid #2a2a2a",
-    background: "rgba(17, 17, 17, 0.8)",
+    borderBottom: "1px solid #2D2A27",
+    background: "rgba(28, 25, 23, 0.85)",
     backdropFilter: "blur(12px)",
     WebkitBackdropFilter: "blur(12px)",
     flexShrink: 0,
@@ -237,11 +292,11 @@ const styles = {
     minWidth: 80,
   },
   logo: {
-    fontWeight: 700,
+    fontWeight: 600,
     fontSize: 14,
-    letterSpacing: "-0.03em",
+    letterSpacing: "-0.04em",
     color: "#f0f0f0",
-    fontFamily: FONT_SANS,
+    fontFamily: FONT_MONO,
   },
   headerCenter: {
     flex: 1,
@@ -252,7 +307,7 @@ const styles = {
   },
   rootPath: {
     fontSize: 11,
-    color: "#555",
+    color: "#787068",
     fontFamily: FONT_MONO,
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -269,7 +324,7 @@ const styles = {
     alignItems: "center",
     gap: 6,
     background: "rgba(255,255,255,0.04)",
-    border: "1px solid #2a2a2a",
+    border: "1px solid #3D3935",
     borderRadius: 7,
     padding: "0 8px",
     height: 28,
@@ -296,7 +351,7 @@ const styles = {
   statDivider: {
     width: 1,
     height: 16,
-    background: "#2a2a2a",
+    background: "#3D3935",
     flexShrink: 0,
   },
   filterBar: {
@@ -304,8 +359,8 @@ const styles = {
     alignItems: "center",
     gap: 4,
     padding: "6px 14px",
-    borderBottom: "1px solid #1e1e1e",
-    background: "#0d0d0d",
+    borderBottom: "1px solid #2D2A27",
+    background: "#171412",
     flexShrink: 0,
     overflowX: "auto" as const,
     flexWrap: "nowrap" as const,
@@ -319,8 +374,8 @@ const styles = {
     fontFamily: FONT_SANS,
     padding: "3px 9px",
     borderRadius: 5,
-    border: "1px solid #2a2a2a",
-    color: "#666",
+    border: "1px solid #3D3935",
+    color: "#787068",
     background: "transparent",
     cursor: "pointer",
     whiteSpace: "nowrap" as const,
@@ -328,9 +383,9 @@ const styles = {
     letterSpacing: "0.01em",
   },
   filterChipActive: {
-    borderColor: "#555",
-    color: "#e0e0e0",
-    background: "rgba(255,255,255,0.06)",
+    borderColor: "#787068",
+    color: "#f0f0f0",
+    background: "rgba(255,255,255,0.08)",
   },
   canvas: {
     flex: 1,
@@ -341,7 +396,7 @@ const styles = {
     height: "100vh",
     alignItems: "center",
     justifyContent: "center",
-    background: "#111111",
+    background: "#1C1917",
     fontFamily: FONT_SANS,
   },
   errorCard: {
@@ -350,8 +405,8 @@ const styles = {
     alignItems: "center",
     gap: 10,
     padding: "32px 40px",
-    background: "#1c1c1e",
-    border: "1px solid #2a2a2a",
+    background: "#1C1A18",
+    border: "1px solid #2D2A27",
     borderRadius: 12,
     boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
   },
@@ -370,7 +425,7 @@ const styles = {
     margin: 0,
   },
   errorDetail: {
-    color: "#555",
+    color: "#787068",
     fontSize: 12,
     fontFamily: FONT_MONO,
     margin: 0,
@@ -387,13 +442,13 @@ const styles = {
   spinner: {
     width: 20,
     height: 20,
-    border: "2px solid #2a2a2a",
+    border: "2px solid #2D2A27",
     borderTopColor: "#f0f0f0",
     borderRadius: "50%",
     animation: "spin 0.8s linear infinite",
   },
   loadingText: {
-    color: "#555",
+    color: "#787068",
     fontSize: 13,
     fontWeight: 500,
     margin: 0,

@@ -4,3 +4,4 @@ dist
 *.local
 .env
 .DS_Store
+packages/ui/dist

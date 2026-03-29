@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as dagre from "@dagrejs/dagre";
 import {
   ReactFlow,
   ReactFlowProvider,
   Background,
-  Controls,
   MiniMap,
+  Panel,
   useNodesState,
   useEdgesState,
   useReactFlow,
@@ -22,17 +22,17 @@ import "@xyflow/react/dist/style.css";
 import type { GraphData, GraphNode, NodeCategory } from "./types.ts";
 
 const CATEGORY_COLOR: Record<NodeCategory, string> = {
-  page:       "#a78bfa",
-  api:        "#fb923c",
-  layout:     "#60a5fa",
-  component:  "#34d399",
-  hook:       "#22d3ee",
-  store:      "#fbbf24",
-  util:       "#94a3b8",
-  type:       "#c084fc",
-  config:     "#f472b6",
-  middleware: "#4ade80",
-  other:      "#52525b",
+  page:       "#8B5CF6",
+  api:        "#F59E0B",
+  layout:     "#3B82F6",
+  component:  "#10B981",
+  hook:       "#06B6D4",
+  store:      "#EAB308",
+  util:       "#64748B",
+  type:       "#7C3AED",
+  config:     "#EC4899",
+  middleware: "#22C55E",
+  other:      "#71717A",
 };
 
 const CATEGORY_LABEL: Record<NodeCategory, string> = {
@@ -58,9 +58,9 @@ const NODE_WIDTH  = 210;
 const NODE_HEIGHT = 58;
 
 const STATUS_COLOR: Record<string, string> = {
-  entry: "#4ade80",
-  live:  "#3b82f6",
-  dead:  "#ef4444",
+  entry: "#22C55E",
+  live:  "#3B82F6",
+  dead:  "#EF4444",
 };
 
 // Category order — determines cluster grid sequence
@@ -166,11 +166,12 @@ function getLayoutedNodes(
           y: gy + CLUSTER_LABEL_H + CLUSTER_PAD_Y + (pos ? pos.y - NODE_HEIGHT / 2 : 0),
         },
         data: {
-          label:           n.label,
-          raw:             n,
+          label:          n.label,
+          raw:            n,
           onHover,
           hoveredId,
-          highlightedIds:  null,
+          highlightedIds: null,
+          isDark:         true,
         } as CodeNodeData & Record<string, unknown>,
       } as Node);
     }
@@ -193,8 +194,8 @@ function GroupNode({ data }: NodeProps<Node<GroupNodeData>>) {
         width:        "100%",
         height:       "100%",
         borderRadius: 12,
-        border:       `1px solid ${d.color}18`,
-        background:   `${d.color}06`,
+        border:       `1px solid ${d.color}25`,
+        background:   `${d.color}10`,
         pointerEvents: "none",
         position:     "relative",
       }}
@@ -213,7 +214,7 @@ function GroupNode({ data }: NodeProps<Node<GroupNodeData>>) {
           textTransform: "uppercase" as const,
           color:         d.color,
           fontFamily:    FONT_SANS,
-          opacity:       0.75,
+          opacity:       0.9,
         }}
       >
         <span
@@ -228,7 +229,7 @@ function GroupNode({ data }: NodeProps<Node<GroupNodeData>>) {
           }}
         />
         {d.label}
-        <span style={{ opacity: 0.45, fontWeight: 500 }}>{d.count}</span>
+        <span style={{ opacity: 0.6, fontWeight: 500 }}>{d.count}</span>
       </div>
     </div>
   );
@@ -242,12 +243,14 @@ interface CodeNodeData {
   onHover:        (id: string | null) => void;
   hoveredId:      string | null;
   highlightedIds: Set<string> | null;
+  isDark:         boolean;
   [key: string]:  unknown;
 }
 
 function CodeNode({ data }: NodeProps<Node<CodeNodeData>>) {
-  const node    = data.raw;
-  const color   = STATUS_COLOR[node.status] ?? "#2a2a2a";
+  const node      = data.raw;
+  const dark      = data.isDark !== false; // default dark
+  const color     = STATUS_COLOR[node.status] ?? "#2a2a2a";
   const isHovered = data.hoveredId === node.id;
   const isDimmed  = data.highlightedIds !== null && !data.highlightedIds.has(node.id);
 
@@ -266,24 +269,24 @@ function CodeNode({ data }: NodeProps<Node<CodeNodeData>>) {
       <Handle
         type="target"
         position={Position.Top}
-        style={{ background: "#333", border: "none", width: 6, height: 6 }}
+        style={{ background: dark ? "#3D3935" : "#D4CFC8", border: "none", width: 6, height: 6 }}
       />
 
       {/* Node card */}
       <div
         style={{
-          background:  "rgba(22, 22, 24, 0.97)",
-          border:      `1.5px solid ${isHovered ? color : `${color}45`}`,
+          background:   dark ? "rgba(28, 26, 24, 0.97)" : "rgba(255, 255, 255, 0.97)",
+          border:       `1.5px solid ${isHovered ? color : `${color}45`}`,
           borderRadius: 8,
-          padding:     "9px 13px 9px 12px",
-          minWidth:    NODE_WIDTH,
-          maxWidth:    NODE_WIDTH,
-          cursor:      "pointer",
-          transition:  "border-color 0.15s ease, box-shadow 0.15s ease",
-          boxShadow:   isHovered
-            ? `0 0 0 2px ${color}15, 0 6px 20px rgba(0,0,0,0.5)`
-            : "0 1px 3px rgba(0,0,0,0.3)",
-          position:    "relative",
+          padding:      "9px 13px 9px 12px",
+          minWidth:     NODE_WIDTH,
+          maxWidth:     NODE_WIDTH,
+          cursor:       "pointer",
+          transition:   "border-color 0.15s ease, box-shadow 0.15s ease",
+          boxShadow:    isHovered
+            ? `0 0 0 2px ${color}15, 0 6px 20px ${dark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.15)"}`
+            : `0 1px 3px ${dark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.08)"}`,
+          position:     "relative",
         }}
       >
         {/* Status dot */}
@@ -307,7 +310,7 @@ function CodeNode({ data }: NodeProps<Node<CodeNodeData>>) {
             fontFamily:   FONT_MONO,
             fontSize:     12,
             fontWeight:   500,
-            color:        "#e8e8e8",
+            color:        dark ? "#e8e8e8" : "#1a1a1a",
             overflow:     "hidden",
             textOverflow: "ellipsis",
             whiteSpace:   "nowrap",
@@ -323,22 +326,22 @@ function CodeNode({ data }: NodeProps<Node<CodeNodeData>>) {
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5 }}>
           <span
             style={{
-              fontSize:       9,
-              fontWeight:     600,
-              letterSpacing:  "0.04em",
-              textTransform:  "uppercase" as const,
-              color:          CATEGORY_COLOR[node.category] ?? "#52525b",
-              background:     `${CATEGORY_COLOR[node.category] ?? "#52525b"}18`,
-              border:         `1px solid ${CATEGORY_COLOR[node.category] ?? "#52525b"}30`,
-              borderRadius:   3,
-              padding:        "1px 5px",
-              lineHeight:     "14px",
-              flexShrink:     0,
+              fontSize:      9,
+              fontWeight:    600,
+              letterSpacing: "0.04em",
+              textTransform: "uppercase" as const,
+              color:         CATEGORY_COLOR[node.category] ?? "#52525b",
+              background:    `${CATEGORY_COLOR[node.category] ?? "#52525b"}18`,
+              border:        `1px solid ${CATEGORY_COLOR[node.category] ?? "#52525b"}30`,
+              borderRadius:  3,
+              padding:       "1px 5px",
+              lineHeight:    "14px",
+              flexShrink:    0,
             }}
           >
             {CATEGORY_LABEL[node.category] ?? node.category}
           </span>
-          <span style={{ fontSize: 10, color: "#3a3a3a", lineHeight: "14px", fontFamily: FONT_SANS }}>
+          <span style={{ fontSize: 10, color: dark ? "#787068" : "#8A8480", lineHeight: "14px", fontFamily: FONT_SANS }}>
             {node.loc.toLocaleString()} lines
           </span>
         </div>
@@ -348,24 +351,24 @@ function CodeNode({ data }: NodeProps<Node<CodeNodeData>>) {
       {isHovered && (
         <div
           style={{
-            position:   "absolute",
-            top:        "calc(100% + 8px)",
-            left:       "50%",
-            transform:  "translateX(-50%)",
-            background: "rgba(22, 22, 24, 0.98)",
-            border:     "1px solid #333",
-            borderRadius: 7,
-            padding:    "9px 12px",
-            zIndex:     100,
-            width:      260,
-            boxShadow:  "0 8px 32px rgba(0,0,0,0.6), 0 1px 4px rgba(0,0,0,0.4)",
+            position:      "absolute",
+            top:           "calc(100% + 8px)",
+            left:          "50%",
+            transform:     "translateX(-50%)",
+            background:    dark ? "rgba(28, 26, 24, 0.98)" : "rgba(255,255,255,0.98)",
+            border:        `1px solid ${dark ? "#3D3935" : "#E0DCD6"}`,
+            borderRadius:  7,
+            padding:       "9px 12px",
+            zIndex:        100,
+            width:         260,
+            boxShadow:     dark ? "0 8px 32px rgba(0,0,0,0.6)" : "0 8px 32px rgba(0,0,0,0.12)",
             pointerEvents: "none" as const,
           }}
         >
           <div
             style={{
               fontSize:      12,
-              color:         "#e8e8e8",
+              color:         dark ? "#e8e8e8" : "#1a1a1a",
               fontWeight:    500,
               lineHeight:    "17px",
               fontFamily:    FONT_SANS,
@@ -376,12 +379,12 @@ function CodeNode({ data }: NodeProps<Node<CodeNodeData>>) {
           </div>
           <div
             style={{
-              fontSize:    10,
-              color:       "#484848",
-              fontFamily:  FONT_MONO,
-              marginTop:   5,
-              lineHeight:  "14px",
-              wordBreak:   "break-all" as const,
+              fontSize:   10,
+              color:      dark ? "#787068" : "#888",
+              fontFamily: FONT_MONO,
+              marginTop:  5,
+              lineHeight: "14px",
+              wordBreak:  "break-all" as const,
             }}
           >
             {node.path}
@@ -389,13 +392,13 @@ function CodeNode({ data }: NodeProps<Node<CodeNodeData>>) {
           {node.deadExports.length > 0 && (
             <div
               style={{
-                marginTop:   7,
-                fontSize:    10,
-                color:       "#ef4444",
-                fontFamily:  FONT_SANS,
-                display:     "flex",
-                alignItems:  "center",
-                gap:         5,
+                marginTop:  7,
+                fontSize:   10,
+                color:      "#ef4444",
+                fontFamily: FONT_SANS,
+                display:    "flex",
+                alignItems: "center",
+                gap:        5,
               }}
             >
               <span style={{ fontSize: 9 }}>⚠</span>
@@ -408,7 +411,7 @@ function CodeNode({ data }: NodeProps<Node<CodeNodeData>>) {
       <Handle
         type="source"
         position={Position.Bottom}
-        style={{ background: "#333", border: "none", width: 6, height: 6 }}
+        style={{ background: dark ? "#3D3935" : "#D4CFC8", border: "none", width: 6, height: 6 }}
       />
     </div>
   );
@@ -425,10 +428,10 @@ function toFlowEdges(
     id:     e.id,
     source: e.source,
     target: e.target,
-    style:  { stroke: "#2e2e2e", strokeWidth: 1 },
+    style:  { stroke: "#3D3935", strokeWidth: 1 },
     markerEnd: {
       type:   MarkerType.ArrowClosed,
-      color:  "#2e2e2e",
+      color:  "#3D3935",
       width:  14,
       height: 10,
     },
@@ -442,6 +445,7 @@ interface Props {
   onSelect:       (node: GraphNode | null) => void;
   activeCategory: NodeCategory | null;
   searchQuery:    string;
+  isDark:         boolean;
 }
 
 // Inner component — must live inside <ReactFlow> to access useReactFlow
@@ -450,8 +454,9 @@ function GraphInner({
   onSelect,
   activeCategory,
   searchQuery,
+  isDark,
 }: Props) {
-  const { fitView } = useReactFlow();
+  const { fitView, zoomIn, zoomOut } = useReactFlow();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const onHover = useCallback((id: string | null) => setHoveredId(id), []);
 
@@ -484,13 +489,24 @@ function GraphInner({
     );
   }, [graph.nodes, activeCategory, searchQuery]);
 
-  // Auto-fit to highlighted nodes when filter/search changes
+  // Track previous highlightedIds to detect filter clear
+  const prevHighlightedRef = useRef<Set<string> | null | undefined>(undefined);
+
+  // Auto-fit when filter/search changes
   useEffect(() => {
-    if (highlightedIds === null) return;
-    const matchingNodeIds = [...highlightedIds];
-    if (matchingNodeIds.length === 0) return;
-    // Small timeout to let React Flow process the opacity changes first
+    const prev = prevHighlightedRef.current;
+    prevHighlightedRef.current = highlightedIds;
+
     const timer = setTimeout(() => {
+      if (highlightedIds === null) {
+        // Filter was cleared — recenter to show all nodes
+        if (prev !== undefined && prev !== null) {
+          fitView({ duration: 450, padding: 0.1 });
+        }
+        return;
+      }
+      const matchingNodeIds = [...highlightedIds];
+      if (matchingNodeIds.length === 0) return;
       fitView({
         nodes: matchingNodeIds.map((id) => ({ id })),
         duration: 450,
@@ -505,9 +521,9 @@ function GraphInner({
     () =>
       nodes.map((n) => {
         if (n.type !== "codeNode") return n;
-        return { ...n, data: { ...n.data, hoveredId, onHover, highlightedIds } };
+        return { ...n, data: { ...n.data, hoveredId, onHover, highlightedIds, isDark } };
       }),
-    [nodes, hoveredId, onHover, highlightedIds]
+    [nodes, hoveredId, onHover, highlightedIds, isDark]
   );
 
   // Dim edges whose endpoints are both outside the highlight set
@@ -518,18 +534,16 @@ function GraphInner({
           highlightedIds !== null &&
           !highlightedIds.has(e.source) &&
           !highlightedIds.has(e.target);
+        const edgeColor = dimmed
+          ? (isDark ? "#1c1c1c" : "#ececec")
+          : (isDark ? "#3D3935" : "#D4CFC8");
         return {
           ...e,
-          style:     { stroke: dimmed ? "#1c1c1c" : "#2e2e2e", strokeWidth: 1 },
-          markerEnd: {
-            type:   MarkerType.ArrowClosed,
-            color:  dimmed ? "#1c1c1c" : "#2e2e2e",
-            width:  14,
-            height: 10,
-          },
+          style:     { stroke: edgeColor, strokeWidth: 1 },
+          markerEnd: { type: MarkerType.ArrowClosed, color: edgeColor, width: 14, height: 10 },
         };
       }),
-    [edges, highlightedIds]
+    [edges, highlightedIds, isDark]
   );
 
   const onNodeClick: NodeMouseHandler = useCallback(
@@ -558,34 +572,101 @@ function GraphInner({
       fitViewOptions={{ padding: 0.1 }}
       minZoom={0.04}
       maxZoom={2}
-      colorMode="dark"
+      colorMode={isDark ? "dark" : "light"}
       proOptions={{ hideAttribution: true }}
     >
       <Background
         variant={BackgroundVariant.Dots}
         gap={20}
-        color="#252525"
+        color={isDark ? "#2D2A27" : "#E8E4DE"}
         size={1}
-        style={{ background: "#111111" }}
+        style={{ background: isDark ? "#1C1917" : "#F8F7F4" }}
       />
-      <Controls
-        showInteractive={false}
-        style={{
-          background:     "rgba(22, 22, 24, 0.92)",
-          backdropFilter: "blur(12px)",
-          border:         "1px solid #2a2a2a",
-          borderRadius:   8,
-          overflow:       "hidden",
-        }}
-      />
+
+      {/* Zoom + recenter controls above minimap */}
+      {/* Zoom + recenter controls — horizontal row, same width as MiniMap (200px) */}
+      <Panel position="bottom-right" style={{ marginBottom: 166 }}>
+        <div
+          style={{
+            display:        "flex",
+            flexDirection:  "row",
+            width:          200,
+            background:     isDark ? "rgba(28,26,24,0.92)" : "rgba(255,255,255,0.92)",
+            backdropFilter: "blur(12px)",
+            border:         `1px solid ${isDark ? "#3D3935" : "#E0DCD6"}`,
+            borderRadius:   8,
+            overflow:       "hidden",
+          }}
+        >
+          {[
+            {
+              title: "Zoom out",
+              onClick: () => zoomOut({ duration: 200 }),
+              icon: (
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              ),
+            },
+            {
+              title: "Fit to view",
+              onClick: () => fitView({ duration: 400, padding: 0.1 }),
+              icon: (
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M1 4V1.5A.5.5 0 011.5 1H4M8 1h2.5a.5.5 0 01.5.5V4M11 8v2.5a.5.5 0 01-.5.5H8M4 11H1.5a.5.5 0 01-.5-.5V8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                </svg>
+              ),
+            },
+            {
+              title: "Zoom in",
+              onClick: () => zoomIn({ duration: 200 }),
+              icon: (
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              ),
+            },
+          ].map((btn, i, arr) => (
+            <button
+              key={btn.title}
+              title={btn.title}
+              onClick={btn.onClick}
+              style={{
+                flex:           1,
+                background:     "none",
+                border:         "none",
+                borderRight:    i < arr.length - 1 ? `1px solid ${isDark ? "#3D3935" : "#E0DCD6"}` : "none",
+                padding:        "7px 0",
+                cursor:         "pointer",
+                color:          isDark ? "#888" : "#666",
+                display:        "flex",
+                alignItems:     "center",
+                justifyContent: "center",
+                transition:     "color 0.15s ease, background 0.15s ease",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.color      = isDark ? "#f0f0f0" : "#1a1a1a";
+                (e.currentTarget as HTMLButtonElement).style.background = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.color      = isDark ? "#888" : "#666";
+                (e.currentTarget as HTMLButtonElement).style.background = "none";
+              }}
+            >
+              {btn.icon}
+            </button>
+          ))}
+        </div>
+      </Panel>
+
       <MiniMap
         style={{
-          background:   "rgba(22, 22, 24, 0.92)",
-          border:       "1px solid #2a2a2a",
+          background:   isDark ? "rgba(28,26,24,0.92)" : "rgba(255,255,255,0.92)",
+          border:       `1px solid ${isDark ? "#3D3935" : "#E0DCD6"}`,
           borderRadius: 8,
           overflow:     "hidden",
         }}
-        maskColor="rgba(0,0,0,0.55)"
+        maskColor={isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.6)"}
         nodeColor={(n) =>
           n.type === "groupNode"
             ? "transparent"

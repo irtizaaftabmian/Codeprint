@@ -1,15 +1,23 @@
 {
-  "name": "@nodemap/cli",
-  "version": "0.0.1",
+  "name": "codeprint",
+  "version": "0.1.0",
+  "description": "Interactive codebase dependency graph visualizer with dead code detection",
   "type": "module",
   "bin": {
-    "nodemap": "./dist/index.js"
+    "codeprint": "./dist/index.js"
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "build": "tsc && node scripts/copy-ui.mjs",
+    "typecheck": "tsc --noEmit",
+    "prepack": "pnpm build"
   },
+  "keywords": ["codebase", "dependency-graph", "dead-code", "visualization", "claude-code"],
+  "license": "MIT",
   "dependencies": {
     "@hono/node-server": "^1.13.7",
     "hono": "^4.7.4",
@@ -23,5 +31,8 @@
     "@types/node": "^22.13.9",
     "tsx": "^4.19.3",
     "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

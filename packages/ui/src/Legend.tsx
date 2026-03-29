@@ -4,9 +4,22 @@ const items = [
   { color: "#ef4444", label: "Dead code" },
 ];
 
-export function Legend() {
+interface LegendProps {
+  isDark: boolean;
+}
+
+export function Legend({ isDark }: LegendProps) {
   return (
-    <div style={styles.root}>
+    <div
+      style={{
+        ...styles.root,
+        background: isDark ? "rgba(28, 28, 30, 0.85)" : "rgba(255, 255, 255, 0.88)",
+        border: `1px solid ${isDark ? "#2a2a2a" : "#e0e0e4"}`,
+        boxShadow: isDark
+          ? "0 1px 2px rgba(0,0,0,0.2), 0 4px 16px rgba(0,0,0,0.3)"
+          : "0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06)",
+      }}
+    >
       {items.map(({ color, label }) => (
         <div key={label} style={styles.item}>
           <div
@@ -19,7 +32,7 @@ export function Legend() {
               flexShrink: 0,
             }}
           />
-          <span style={styles.label}>{label}</span>
+          <span style={{ ...styles.label, color: isDark ? "#888" : "#555" }}>{label}</span>
         </div>
       ))}
     </div>
@@ -31,17 +44,14 @@ const styles = {
     position: "absolute" as const,
     bottom: 16,
     left: 16,
-    background: "rgba(28, 28, 30, 0.85)",
     backdropFilter: "blur(12px)",
     WebkitBackdropFilter: "blur(12px)",
-    border: "1px solid #2a2a2a",
     borderRadius: 10,
     padding: "10px 14px",
     display: "flex",
     flexDirection: "column" as const,
     gap: 8,
     zIndex: 10,
-    boxShadow: "0 1px 2px rgba(0,0,0,0.2), 0 4px 16px rgba(0,0,0,0.3)",
   },
   item: {
     display: "flex",
@@ -51,7 +61,6 @@ const styles = {
   label: {
     fontSize: 11,
     fontWeight: 500,
-    color: "#888",
     fontFamily: "'Geist', system-ui, sans-serif",
     letterSpacing: "0.01em",
   },
