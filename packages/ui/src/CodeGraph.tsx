@@ -94,7 +94,7 @@ function getLayoutedNodes(
         x: pos ? pos.x - NODE_WIDTH / 2 : 0,
         y: pos ? pos.y - NODE_HEIGHT / 2 : 0,
       },
-      data: { label: n.label, raw: n, onHover, hoveredId },
+      data: { label: n.label, raw: n, onHover, hoveredId, activeCategory: null },
     };
   });
 }
@@ -106,6 +106,7 @@ interface CodeNodeData {
   raw: GraphNode;
   onHover: (id: string | null) => void;
   hoveredId: string | null;
+  activeCategory: NodeCategory | null;
   [key: string]: unknown;
 }
 
@@ -113,12 +114,19 @@ function CodeNode({ data }: NodeProps<Node<CodeNodeData>>) {
   const node = data.raw;
   const color = STATUS_COLOR[node.status] ?? "#2a2a2a";
   const isHovered = data.hoveredId === node.id;
+  const isDimmed = data.activeCategory !== null && node.category !== data.activeCategory;
 
   return (
     <div
       onMouseEnter={() => data.onHover(node.id)}
       onMouseLeave={() => data.onHover(null)}
-      style={{ position: "relative", fontFamily: FONT_SANS }}
+      style={{
+        position: "relative",
+        fontFamily: FONT_SANS,
+        opacity: isDimmed ? 0.1 : 1,
+        transition: "opacity 0.2s ease",
+        pointerEvents: isDimmed ? "none" : "auto",
+      }}
     >
       <Handle
         type="target"
@@ -302,35 +310,50 @@ interface Props {
 }
 
 export function CodeGraph({ graph, onSelect, activeCategory }: Props) {
-  const filteredNodes = activeCategory
-    ? graph.nodes.filter((n) => n.category === activeCategory)
-    : graph.nodes;
-  const filteredEdges = activeCategory
-    ? graph.edges.filter((e) => filteredNodes.some((n) => n.id === e.source) && filteredNodes.some((n) => n.id === e.target))
-    : graph.edges;
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const onHover = useCallback((id: string | null) => setHoveredId(id), []);
 
   const initialNodes = useMemo(
-    () => getLayoutedNodes(filteredNodes, filteredEdges, onHover, hoveredId),
+    () => getLayoutedNodes(graph.nodes, graph.edges, onHover, hoveredId),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [filteredNodes, filteredEdges]
+    [graph.nodes, graph.edges]
   );
 
-  const initialEdges = useMemo(() => toFlowEdges(filteredEdges), [filteredEdges]);
+  const initialEdges = useMemo(() => toFlowEdges(graph.edges), [graph.edges]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
 
-  // Propagate hoveredId into node data without re-running dagre
+  // Propagate hoveredId and activeCategory into node data without re-running dagre
   const displayNodes = useMemo(
     () =>
       nodes.map((n) => ({
         ...n,
-        data: { ...n.data, hoveredId, onHover },
+        data: { ...n.data, hoveredId, onHover, activeCategory },
       })),
-    [nodes, hoveredId, onHover]
+    [nodes, hoveredId, onHover, activeCategory]
+  );
+
+  // Dim edges where either endpoint is in a non-active category
+  const activeNodeIds = useMemo(() => {
+    if (!activeCategory) return null;
+    return new Set(graph.nodes.filter((n) => n.category === activeCategory).map((n) => n.id));
+  }, [graph.nodes, activeCategory]);
+
+  const displayEdges = useMemo(
+    () =>
+      edges.map((e) => {
+        const dimmed = activeNodeIds !== null && (!activeNodeIds.has(e.source) || !activeNodeIds.has(e.target));
+        return {
+          ...e,
+          style: { stroke: dimmed ? "#1e1e1e" : "#2e2e2e", strokeWidth: 1 },
+          markerEnd: dimmed
+            ? { type: MarkerType.ArrowClosed, color: "#1e1e1e", width: 14, height: 10 }
+            : { type: MarkerType.ArrowClosed, color: "#2e2e2e", width: 14, height: 10 },
+        };
+      }),
+    [edges, activeNodeIds]
   );
 
   const onNodeClick: NodeMouseHandler = useCallback(
@@ -349,7 +372,7 @@ export function CodeGraph({ graph, onSelect, activeCategory }: Props) {
   return (
     <ReactFlow
       nodes={displayNodes}
-      edges={edges}
+      edges={displayEdges}
       nodeTypes={nodeTypes}
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}

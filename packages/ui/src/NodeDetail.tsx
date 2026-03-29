@@ -21,10 +21,11 @@ const STATUS_BG: Record<string, string> = {
 
 interface Props {
   node: GraphNode;
+  root: string;
   onClose: () => void;
 }
 
-export function NodeDetail({ node, onClose }: Props) {
+export function NodeDetail({ node, root, onClose }: Props) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -81,6 +82,31 @@ export function NodeDetail({ node, onClose }: Props) {
       </div>
 
       <div style={styles.separator} />
+
+      {/* Open in editor buttons */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
+        <button
+          onClick={() => window.open(`vscode://file/${root}/${node.path}`)}
+          style={styles.editorBtn}
+          title="Open in VS Code"
+        >
+          <svg width="13" height="13" viewBox="0 0 100 100" fill="none" style={{ flexShrink: 0 }}>
+            <path d="M74.8 5.9L40.2 37.5 17.3 19.4 5.8 25.9l22.5 24.1L5.8 74.1l11.5 6.5L40.2 62.5l34.6 31.6L94.2 85V15L74.8 5.9z" fill="#007ACC"/>
+          </svg>
+          VS Code
+        </button>
+        <button
+          onClick={() => window.open(`cursor://file/${root}/${node.path}`)}
+          style={styles.editorBtn}
+          title="Open in Cursor"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+            <rect width="24" height="24" rx="4" fill="#1a1a1a"/>
+            <path d="M6 6l6 6-6 6M12 18h6" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Cursor
+        </button>
+      </div>
 
       <div style={styles.rows}>
         <Row label="Path">
@@ -315,5 +341,22 @@ const styles = {
     border: "1px solid rgba(239, 68, 68, 0.15)",
     borderRadius: 4,
     padding: "2px 8px",
+  },
+  editorBtn: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    fontSize: 11,
+    fontWeight: 500,
+    fontFamily: FONT_SANS,
+    padding: "5px 10px",
+    borderRadius: 6,
+    border: "1px solid #2a2a2a",
+    background: "rgba(255,255,255,0.04)",
+    color: "#888",
+    cursor: "pointer",
+    flex: 1,
+    justifyContent: "center",
+    transition: "border-color 0.15s ease, color 0.15s ease",
   },
 } as const;

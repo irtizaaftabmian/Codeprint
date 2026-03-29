@@ -262,6 +262,29 @@ function runKnip(root: string): { deadFiles: Set<string>; deadExports: Map<strin
   return { deadFiles, deadExports };
 }
 
+// ─── Contextual label ────────────────────────────────────────────────────────
+
+const GENERIC_FILENAMES = new Set(["page", "route", "layout", "index", "loading", "error", "not-found", "template"]);
+
+/** For generic filenames (page.tsx, route.ts…) use the nearest meaningful parent dir. */
+function makeLabel(relPath: string): string {
+  const parts = relPath.split("/");
+  const rawFile = parts.at(-1) ?? "";
+  const basename = rawFile.replace(/\.(ts|tsx|js|jsx)$/, "").toLowerCase();
+
+  if (!GENERIC_FILENAMES.has(basename)) return rawFile;
+
+  // Walk parent dirs from innermost, skip dynamic [param] and generic wrapper dirs
+  const SKIP_DIRS = new Set(["app", "src", "pages", "routes"]);
+  for (let i = parts.length - 2; i >= 0; i--) {
+    const seg = parts[i];
+    if (!seg.startsWith("[") && !SKIP_DIRS.has(seg.toLowerCase())) {
+      return `${seg}/${basename}`;
+    }
+  }
+  return rawFile;
+}
+
 // ─── Main export ─────────────────────────────────────────────────────────────
 
 export async function analyze(root: string): Promise<GraphData> {
@@ -294,7 +317,7 @@ export async function analyze(root: string): Promise<GraphData> {
 
     nodes.push({
       id,
-      label:       file.split("/").pop() ?? file,
+      label:       makeLabel(relFile),
       path:        relFile,
       kind:        "file",
       status,

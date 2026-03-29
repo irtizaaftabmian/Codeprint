@@ -106,7 +106,7 @@ export default function App() {
       </div>
 
       {selected && (
-        <NodeDetail node={selected} onClose={() => setSelected(null)} />
+        <NodeDetail node={selected} root={graph.root} onClose={() => setSelected(null)} />
       )}
     </div>
   );
