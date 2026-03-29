@@ -2,17 +2,43 @@
 import { analyze } from "./analyze.js";
 import { startServer } from "./server.js";
 import pc from "picocolors";
+import { existsSync, mkdirSync, writeFileSync, readFileSync } from "node:fs";
+import { resolve, dirname } from "node:path";
+import { homedir } from "node:os";
+import { fileURLToPath } from "node:url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const args = process.argv.slice(2);
 const jsonMode = args.includes("--json");
-const targetDir = args.find((a) => !a.startsWith("--")) ?? ".";
 const port = Number(args.find((a) => a.startsWith("--port="))?.split("=")[1] ?? 3456);
+
+// ─── Auto-install Claude Code slash command ───────────────────────────────────
+
+function installClaudeCommand() {
+  try {
+    const dest = resolve(homedir(), ".claude", "commands", "codeprint.md");
+    if (existsSync(dest)) return; // already installed
+
+    const src = resolve(__dirname, "./claude-command.md");
+    if (!existsSync(src)) return; // bundled file missing, skip silently
+
+    mkdirSync(dirname(dest), { recursive: true });
+    writeFileSync(dest, readFileSync(src, "utf8"));
+    console.log(pc.dim("  ✓ /codeprint slash command installed in Claude Code"));
+  } catch {
+    // never block on this
+  }
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
   const root = process.cwd();
 
   if (!jsonMode) {
     console.log(pc.bold(pc.cyan("codeprint")) + pc.dim(" — analyzing codebase..."));
+    installClaudeCommand();
   }
 
   let graph;

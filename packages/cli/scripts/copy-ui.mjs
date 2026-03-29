@@ -1,6 +1,7 @@
 // Copies packages/ui/dist into packages/cli/dist/public
-// so the npm package is self-contained.
-import { cpSync, mkdirSync, existsSync } from "node:fs";
+// and bundles the Claude Code slash command into dist/
+// so the npm package is fully self-contained.
+import { cpSync, mkdirSync, existsSync, copyFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -16,3 +17,11 @@ if (!existsSync(uiDist)) {
 mkdirSync(dest, { recursive: true });
 cpSync(uiDist, dest, { recursive: true });
 console.log("  Copied UI dist → dist/public");
+
+// Bundle Claude Code slash command content
+const claudeCmd = resolve(__dirname, "../claude-command.md");
+const claudeDest = resolve(__dirname, "../dist/claude-command.md");
+if (existsSync(claudeCmd)) {
+  copyFileSync(claudeCmd, claudeDest);
+  console.log("  Copied claude-command.md → dist/claude-command.md");
+}
