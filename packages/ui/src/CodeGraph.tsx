@@ -17,7 +17,37 @@ import {
   MarkerType,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import type { GraphData, GraphNode } from "./types.ts";
+import type { GraphData, GraphNode, NodeCategory } from "./types.ts";
+
+const CATEGORY_COLOR: Record<NodeCategory, string> = {
+  page:       "#a78bfa",
+  api:        "#fb923c",
+  layout:     "#60a5fa",
+  component:  "#34d399",
+  hook:       "#22d3ee",
+  store:      "#fbbf24",
+  util:       "#94a3b8",
+  type:       "#c084fc",
+  config:     "#f472b6",
+  middleware: "#4ade80",
+  other:      "#52525b",
+};
+
+const CATEGORY_LABEL: Record<NodeCategory, string> = {
+  page:       "Page",
+  api:        "API",
+  layout:     "Layout",
+  component:  "Component",
+  hook:       "Hook",
+  store:      "Store",
+  util:       "Utility",
+  type:       "Types",
+  config:     "Config",
+  middleware: "Middleware",
+  other:      "Other",
+};
+
+export { CATEGORY_COLOR, CATEGORY_LABEL };
 
 const FONT_SANS = "'Geist', system-ui, -apple-system, sans-serif";
 const FONT_MONO = "'Geist Mono', 'SF Mono', Menlo, monospace";
@@ -146,17 +176,28 @@ function CodeNode({ data }: NodeProps<Node<CodeNodeData>>) {
           {node.label}
         </div>
 
-        {/* Lines count */}
-        <div
-          style={{
-            fontSize: 10,
-            color: "#444",
-            marginTop: 4,
-            lineHeight: "13px",
-            fontFamily: FONT_SANS,
-          }}
-        >
-          {node.loc.toLocaleString()} lines
+        {/* Category + lines row */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5 }}>
+          <span
+            style={{
+              fontSize: 9,
+              fontWeight: 600,
+              letterSpacing: "0.04em",
+              textTransform: "uppercase" as const,
+              color: CATEGORY_COLOR[node.category] ?? "#52525b",
+              background: `${CATEGORY_COLOR[node.category] ?? "#52525b"}18`,
+              border: `1px solid ${CATEGORY_COLOR[node.category] ?? "#52525b"}30`,
+              borderRadius: 3,
+              padding: "1px 5px",
+              lineHeight: "14px",
+              flexShrink: 0,
+            }}
+          >
+            {CATEGORY_LABEL[node.category] ?? node.category}
+          </span>
+          <span style={{ fontSize: 10, color: "#3a3a3a", lineHeight: "14px", fontFamily: FONT_SANS }}>
+            {node.loc.toLocaleString()} lines
+          </span>
         </div>
       </div>
 
@@ -257,20 +298,27 @@ function toFlowEdges(
 interface Props {
   graph: GraphData;
   onSelect: (node: GraphNode | null) => void;
+  activeCategory: NodeCategory | null;
 }
 
-export function CodeGraph({ graph, onSelect }: Props) {
+export function CodeGraph({ graph, onSelect, activeCategory }: Props) {
+  const filteredNodes = activeCategory
+    ? graph.nodes.filter((n) => n.category === activeCategory)
+    : graph.nodes;
+  const filteredEdges = activeCategory
+    ? graph.edges.filter((e) => filteredNodes.some((n) => n.id === e.source) && filteredNodes.some((n) => n.id === e.target))
+    : graph.edges;
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const onHover = useCallback((id: string | null) => setHoveredId(id), []);
 
   const initialNodes = useMemo(
-    () => getLayoutedNodes(graph.nodes, graph.edges, onHover, hoveredId),
+    () => getLayoutedNodes(filteredNodes, filteredEdges, onHover, hoveredId),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [graph.nodes, graph.edges]
+    [filteredNodes, filteredEdges]
   );
 
-  const initialEdges = useMemo(() => toFlowEdges(graph.edges), [graph.edges]);
+  const initialEdges = useMemo(() => toFlowEdges(filteredEdges), [filteredEdges]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);

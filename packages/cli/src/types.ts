@@ -1,5 +1,6 @@
 export type NodeStatus = "live" | "dead" | "entry";
 export type NodeKind = "file" | "function" | "class" | "type" | "variable";
+export type NodeCategory = "page" | "api" | "layout" | "component" | "hook" | "store" | "util" | "type" | "config" | "middleware" | "other";
 
 export interface GraphNode {
   id: string;
@@ -7,6 +8,7 @@ export interface GraphNode {
   path: string;
   kind: NodeKind;
   status: NodeStatus;
+  category: NodeCategory;
   loc: number; // lines of code
   exports: string[];
   deadExports: string[];
