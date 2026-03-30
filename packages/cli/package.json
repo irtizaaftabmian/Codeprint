@@ -27,6 +27,7 @@
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
+    "@codeprint/ui": "workspace:*",
     "@types/madge": "^5.0.3",
     "@types/node": "^22.13.9",
     "tsx": "^4.19.3",

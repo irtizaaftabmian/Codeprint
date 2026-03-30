@@ -36,6 +36,9 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
     devDependencies:
+      '@codeprint/ui':
+        specifier: workspace:*
+        version: link:../ui
       '@types/madge':
         specifier: ^5.0.3
         version: 5.0.3
