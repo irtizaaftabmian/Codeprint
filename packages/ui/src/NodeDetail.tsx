@@ -167,6 +167,11 @@ export function NodeDetail({ node, root, isDark, onClose }: Props) {
         <Row label="Kind" labelColor={textMut}>
           <span style={{ ...styles.rowValue, color: textSec }}>{node.kind}</span>
         </Row>
+        {node.language && (
+          <Row label="Language" labelColor={textMut}>
+            <span style={{ ...styles.rowValue, color: textSec }}>{node.language}</span>
+          </Row>
+        )}
         <Row label="Lines" labelColor={textMut}>
           <span style={{ ...styles.rowValue, color: textSec }}>{node.loc.toLocaleString()}</span>
         </Row>

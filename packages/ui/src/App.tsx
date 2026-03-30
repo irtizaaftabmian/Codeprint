@@ -140,6 +140,14 @@ export default function App() {
           <Chip color="#3B82F6" count={graph.stats.live} label="live" isDark={isDark} />
           <Chip color="#EF4444" count={graph.stats.dead} label="dead" isDark={isDark} />
           <ChipMuted count={graph.stats.total} label="total" isDark={isDark} />
+          {graph.languages && graph.languages.length > 0 && (
+            <>
+              <div style={{ ...styles.statDivider, background: isDark ? "#3D3935" : "#D4CFC8" }} />
+              <span style={{ fontSize: 11, color: isDark ? "#787068" : "#8A8480", fontFamily: "'Geist', system-ui, sans-serif" }}>
+                {graph.languages.join(", ")}
+              </span>
+            </>
+          )}
         </div>
       </div>
 

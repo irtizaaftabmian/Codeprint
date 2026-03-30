@@ -32,6 +32,14 @@ const CATEGORY_COLOR: Record<NodeCategory, string> = {
   type:       "#7C3AED",
   config:     "#EC4899",
   middleware: "#22C55E",
+  test:       "#F97316",
+  model:      "#0EA5E9",
+  controller: "#D946EF",
+  service:    "#14B8A6",
+  view:       "#A78BFA",
+  template:   "#FB923C",
+  migration:  "#6366F1",
+  script:     "#84CC16",
   other:      "#71717A",
 };
 
@@ -46,6 +54,14 @@ const CATEGORY_LABEL: Record<NodeCategory, string> = {
   type:       "Types",
   config:     "Config",
   middleware: "Middleware",
+  test:       "Test",
+  model:      "Model",
+  controller: "Controller",
+  service:    "Service",
+  view:       "View",
+  template:   "Template",
+  migration:  "Migration",
+  script:     "Script",
   other:      "Other",
 };
 
@@ -65,8 +81,9 @@ const STATUS_COLOR: Record<string, string> = {
 
 // Category order — determines cluster grid sequence
 const CATEGORY_ORDER: NodeCategory[] = [
-  "page", "layout", "api", "component", "hook",
-  "store", "util", "type", "config", "middleware", "other",
+  "page", "layout", "api", "controller", "component", "hook",
+  "store", "model", "service", "view", "template",
+  "util", "type", "config", "middleware", "migration", "script", "test", "other",
 ];
 
 // Cluster grid constants

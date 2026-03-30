@@ -1,6 +1,9 @@
 export type NodeStatus = "live" | "dead" | "entry";
 export type NodeKind = "file" | "function" | "class" | "type" | "variable";
-export type NodeCategory = "page" | "api" | "layout" | "component" | "hook" | "store" | "util" | "type" | "config" | "middleware" | "other";
+export type NodeCategory =
+  | "page" | "api" | "layout" | "component" | "hook" | "store" | "util"
+  | "type" | "config" | "middleware" | "test" | "model" | "controller"
+  | "service" | "view" | "template" | "migration" | "script" | "other";
 
 export interface GraphNode {
   id: string;
@@ -10,6 +13,7 @@ export interface GraphNode {
   status: NodeStatus;
   category: NodeCategory;
   loc: number;
+  language?: string;
   exports: string[];
   deadExports: string[];
   description: string;
@@ -30,6 +34,7 @@ export interface GraphData {
     dead: number;
     entries: number;
   };
+  languages?: string[];
   analyzedAt: string;
   root: string;
 }
