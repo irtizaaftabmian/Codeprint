@@ -1,7 +1,14 @@
 {
   "name": "codeprint",
   "version": "0.1.0",
-  "description": "Interactive codebase dependency graph visualizer with dead code detection",
+  "description": "Interactive codebase dependency graph visualizer with dead code detection — supports 17 languages",
+  "homepage": "https://github.com/irtizaaftabmian/Codeprint",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/irtizaaftabmian/Codeprint.git",
+    "directory": "packages/cli"
+  },
+  "author": "Doppel Labs",
   "type": "module",
   "bin": {
     "codeprint": "./dist/index.js"
@@ -16,7 +23,7 @@
     "typecheck": "tsc --noEmit",
     "prepack": "pnpm build"
   },
-  "keywords": ["codebase", "dependency-graph", "dead-code", "visualization", "claude-code"],
+  "keywords": ["codebase", "dependency-graph", "dead-code", "visualization", "claude-code", "python", "go", "rust", "java", "multi-language"],
   "license": "MIT",
   "dependencies": {
     "@hono/node-server": "^1.13.7",

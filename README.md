@@ -1,6 +1,17 @@
-# codeprint
+<p align="center">
+  <img src="https://raw.githubusercontent.com/irtizaaftabmian/Codeprint/main/packages/ui/public/logo.png" width="80" alt="codeprint logo" />
+</p>
 
-> Visualize any codebase as an interactive dependency graph — with dead code detection, AI descriptions, and native Claude Code integration.
+<h1 align="center">codeprint</h1>
+
+<p align="center">
+  Visualize any codebase as an interactive dependency graph — with dead code detection, AI descriptions, and native Claude Code integration.
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/codeprint"><img src="https://img.shields.io/npm/v/codeprint.svg" alt="npm version" /></a>
+  <a href="https://github.com/irtizaaftabmian/Codeprint/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license" /></a>
+</p>
 
 ![codeprint visualization](https://raw.githubusercontent.com/irtizaaftabmian/Codeprint/main/screenshot.png)
 
@@ -33,14 +44,16 @@ Claude analyzes the codebase and returns a full breakdown — dead files, entry 
 
 ## Features
 
+- **17 languages** — TypeScript, JavaScript, Python, Go, Rust, Java, Kotlin, Swift, C/C++, C#, Ruby, PHP, Dart, Scala, Elixir, Zig, Lua
 - **Dependency graph** — every file and its import chain, laid out by category
 - **Dead code detection** — powered by [knip](https://knip.dev), red nodes = unused files
-- **Category clusters** — Page · API · Component · Hook · Store · Util · Type · Config
+- **Category clusters** — Page · API · Component · Hook · Model · Controller · Service · Store · Util · Type · Config · and more
 - **File descriptions** — plain-English summaries generated from each file's content
-- **Node detail panel** — path, LOC, exports, dead exports, open in VS Code or Cursor
+- **Node detail panel** — path, language, LOC, exports, dead exports, open in VS Code or Cursor
 - **Copy path** — one click to copy a file path into Claude or any LLM prompt
 - **Search + filter** — by filename or category
 - **Dark / light mode**
+- **Claude Code plugin** — install with `npx plugins add codeprint` for automatic skill injection
 
 ---
 
@@ -62,8 +75,7 @@ npx codeprint --port=4000
 ## Requirements
 
 - Node.js 18+
-- pnpm
-- A TypeScript or JavaScript project
+- Any project with supported source files (JS, TS, Python, Go, Rust, Java, Kotlin, Swift, C/C++, C#, Ruby, PHP, Dart, Scala, Elixir, Zig, Lua)
 
 ---
 
