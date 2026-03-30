@@ -1,102 +1,68 @@
 # codeprint
 
-Interactive codebase dependency graph with dead code detection. Run it in any project to instantly visualize your file structure, imports, and unused code.
+Interactive codebase dependency graph with dead code detection — built as a Claude Code plugin.
+
+![codeprint visualization](https://raw.githubusercontent.com/irtizaaftabmian/Codeprint/main/screenshot.png)
+
+## Install into Claude Code
 
 ```bash
-npx codeprint
+git clone https://github.com/irtizaaftabmian/Codeprint
+cd Codeprint
+pnpm install && pnpm build
+node packages/cli/dist/index.js
 ```
 
-Opens a browser at `http://localhost:3456`.
+That's it. The last command:
+- Opens the visualization in your browser
+- Automatically installs `/codeprint` as a global slash command in Claude Code
 
-![codeprint visualization](https://raw.githubusercontent.com/irtizaaftabmian/codeprint/main/screenshot.png)
+From that point on, type `/codeprint` in any Claude Code session to analyze any codebase.
 
-## Features
+## What it does
 
-- **Dependency graph** — every file and its import relationships
-- **Dead code detection** — red nodes = files with no active importers (via [knip](https://knip.dev))
-- **Category clusters** — files grouped by type: Page, API, Component, Hook, Store, Util, Type, Config
-- **Plain-English descriptions** — AI-style summaries of what each file does, generated from its content
-- **Click any node** — see path, LOC, exports, dead exports, and open directly in VS Code or Cursor
-- **Copy path** — one click to copy the file path for pasting into Claude or any LLM
-- **Search + filter** — search by filename, filter by category
-- **Dark / light mode**
+Run `npx codeprint` inside any JS/TS project:
 
-## Usage
+- Opens a browser at `http://localhost:3456`
+- Shows every file as a node, grouped by category (Page, API, Component, Hook, Store, Util…)
+- **Green** = entry points · **Blue** = live files · **Red** = dead/unused files
+- Click any node → see description, path, exports, dead exports
+- **Copy path** button → paste the file path directly into Claude or any LLM
+- Open files in VS Code or Cursor with one click
+- Search by filename, filter by category, dark/light mode
+
+## Using the slash command
+
+Once installed, type `/codeprint` in Claude Code while inside any project:
+
+```
+/codeprint
+```
+
+Claude will run the analysis and give you a full breakdown — dead code, entry points, largest files, and recommendations.
+
+## CLI usage
 
 ```bash
-# Interactive browser graph (default)
+# Interactive browser (default)
 npx codeprint
 
-# JSON output — for LLMs or scripting
+# JSON output for scripting or piping to Claude
 npx codeprint --json
 
 # Custom port
 npx codeprint --port=4000
 ```
 
-### JSON mode
-
-```bash
-npx codeprint --json | jq '.stats'
-```
-
-```json
-{
-  "total": 84,
-  "live": 61,
-  "dead": 12,
-  "entries": 11
-}
-```
-
-Pipe the full JSON into Claude to answer questions like:
-- "What files are dead and safe to delete?"
-- "What does `auth/route.ts` depend on?"
-- "Which components import `useUser`?"
-
-## Claude Code integration
-
-Add `/codeprint` as a slash command in any project:
-
-```bash
-# Copy to your project (per-project)
-mkdir -p .claude/commands
-curl -o .claude/commands/codeprint.md \
-  https://raw.githubusercontent.com/irtizaaftabmian/codeprint/main/.claude/commands/codeprint.md
-
-# Or copy globally (available in all Claude Code sessions)
-mkdir -p ~/.claude/commands
-curl -o ~/.claude/commands/codeprint.md \
-  https://raw.githubusercontent.com/irtizaaftabmian/codeprint/main/.claude/commands/codeprint.md
-```
-
-Then type `/codeprint` in Claude Code to analyze your codebase and get AI reasoning about the structure.
-
 ## How dead code detection works
 
-codeprint runs [knip](https://knip.dev) in JSON reporter mode to find unused files and exports. If your project doesn't have a `knip.config.ts`, detection falls back to import-graph analysis only (files with no importers = dead).
-
-For full export-level analysis, add a `knip.config.ts` to your project root.
+Uses [knip](https://knip.dev) under the hood. If the project has no `knip.config.ts`, detection falls back to import-graph analysis (files with no importers = dead). For full export-level analysis, add a `knip.config.ts` to your project.
 
 ## Requirements
 
 - Node.js 18+
+- pnpm
 - TypeScript / JavaScript project (`.ts`, `.tsx`, `.js`, `.jsx`)
-
-## Development
-
-```bash
-git clone https://github.com/irtizaaftabmian/codeprint
-cd codeprint
-pnpm install
-pnpm dev        # starts CLI + UI in watch mode
-```
-
-Build for publishing:
-
-```bash
-pnpm build      # compiles CLI + bundles UI into dist/
-```
 
 ## License
 
