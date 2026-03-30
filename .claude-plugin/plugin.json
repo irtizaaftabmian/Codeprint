@@ -1,0 +1,23 @@
+{
+  "name": "codeprint",
+  "version": "0.1.0",
+  "description": "Interactive dependency graph visualizer and dead code detector for any codebase. Turns Claude Code into a codebase architecture expert with visual exploration, dead code analysis, and dependency tracing.",
+  "author": {
+    "name": "Doppel Labs",
+    "url": "https://github.com/irtizaaftabmian"
+  },
+  "repository": "https://github.com/irtizaaftabmian/Codeprint",
+  "license": "MIT",
+  "keywords": [
+    "codebase",
+    "dependencies",
+    "dead-code",
+    "visualization",
+    "dependency-graph",
+    "code-analysis",
+    "unused-code",
+    "architecture",
+    "knip",
+    "madge"
+  ]
+}
